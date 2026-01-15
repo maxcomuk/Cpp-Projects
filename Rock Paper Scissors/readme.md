@@ -38,3 +38,105 @@ std::string generate_computers_move()
 	return objects[randomNum];
 }
 ```
+
+## Step 4
+- This is the function that will compare both results eg (players move and computers move) then after returning a character that will represent a loss, win or a draw. Note loads of if statement are peformed here to return all the possible outcomes although it can be a bit rebundant it gets the job done when you dont have loads of outcomes as a simple rock-paper-scissors game
+
+- It should be pretty self-explanatory but (L = Loss, W = Won, D = Draw)
+```
+char generateWinner(const std::string& playerMove, const std::string& computerMove)
+{
+	if (playerMove == rock && computerMove == paper)
+	{
+		return 'L';
+	}
+	else if (playerMove == rock && computerMove == rock)
+	{
+		return 'D';
+	}
+	else if (playerMove == rock && computerMove == scissors)
+	{
+		return 'W';
+	}
+	else if (playerMove == paper && computerMove == paper)
+	{
+		return 'D';
+	}
+	else if (playerMove == paper && computerMove == rock)
+	{
+		return 'W';
+	}
+	else if (playerMove == paper && computerMove == scissors)
+	{
+		return 'L';
+	}
+	else if (playerMove == scissors && computerMove == paper)
+	{
+		return 'W';
+	}
+	else if (playerMove == scissors && computerMove == rock)
+	{
+		return 'L';
+	}
+	else if (playerMove == scissors && computerMove == scissors)
+	{
+		return 'D';
+	}
+
+	return '?';
+}
+```
+
+```
+// Creating the entry point of our program //
+int main()
+{
+	// Initializing Timer For Random Number Generator //
+	srand(time(nullptr));
+
+	// Player Move Tracker //
+	std::string playerMove;
+
+	// Prompting User With Game Objects Selection //
+	std::cout << "Welcome to rock / paper / scissors game.\tPress Enter to begin";
+	std::cin.get();
+
+	// Grabbing User Input //
+	while (true) {
+		std::cout << "Pick your game object: Rock | Paper | Scissors" << '\n';
+		std::cin >> playerMove;
+		if (playerMove == rock || playerMove == paper || playerMove == scissors)
+			break;
+		else
+			std::cout << "Invalid Input: Please try again" << '\n';
+	}
+
+	// Generating Computers Move //
+	std::string computerMove = generate_computers_move();
+
+	// Comparing End Results //
+	char gameResults = generateWinner(playerMove, computerMove);
+	if (gameResults == '?')
+	{
+		std::cout << "Game failed to calculate winner, please try again";
+		return 0;
+	}
+
+	// Prompting user with the end results on who won the game then exiting program //
+	if (gameResults == 'W')
+	{
+		std::cout << "\n\t\t\tCongratulation you won the game";
+	}
+	else if (gameResults == 'L')
+	{
+		std::cout << "\n\t\t\tComputer won the game, Better luck next time :/";
+	}
+	else if (gameResults == 'D')
+	{
+		std::cout << "\n\t\t\tGame Draw, Better luck next time";
+	}
+
+	// Optional return before program automatically exits as the end of the main entry //
+	return 0;
+}
+```
