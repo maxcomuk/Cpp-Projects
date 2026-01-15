@@ -24,7 +24,11 @@ const std::string scissors = "Scissors";
 ```
 
 ## Step 3
-- Before starting this project i scanned through the project example wich was created here --> 
+- Before starting this project i scanned through the project example wich was created here --> https://www.geeksforgeeks.org/cpp/rock-paper-scissor-game-in-cpp/ and after scanning through the project example i came to a conclusion that we will need to create a function that will basically generate a random response that we will later compare to get the winner.
+
+- I learnt a nice optimization technique that we can do to skip loads of if statements using an array to peform a lookup later on therefore removing the need to do an if statement for every possible outcome
+
+- Ultimatly all this function does is generate a random number from 0 to 2 (0, 1, 2) and then peforming a quick index lookup through the objects array wich we return the value of to the function that is calling this function eg the main entry function
 ```
 std::string generate_computers_move()
 {
