@@ -32,7 +32,7 @@ void getCourseAmount(int& totalCourses) {
 	}
 }
 
-/* Creating a loop that will get data on the specified course then setting its valu to the userinput.
+/* Creating a loop that will get data on the specified course then setting its value to the userinput.
    we also create a integer named type so we can reuse this function for both credit hours and grade */
 void setCourseStats(coursesData& course, int type) {
 	while (true) {
@@ -60,7 +60,7 @@ void setCourseStats(coursesData& course, int type) {
 	}
 }
 
-// Looping through the struct_list array that we have resserved and getting user input on each subject (eg course name, credit hours, grade) //
+// Looping through the struct_list vector that we have resserved and getting user input on each subject (eg course name, credit hours, grade) //
 void getCourseData(std::vector <coursesData>& struct_list, int& totalCourses) {
 	// This is not required however i use it just incase the input/output stream has leftover whitespaces //
 	discardLine();
@@ -75,14 +75,14 @@ void getCourseData(std::vector <coursesData>& struct_list, int& totalCourses) {
 		setCourseStats(user, 1);
 		setCourseStats(user, 2);
 
-		// Clearing the input/output stream once more to prepare for the next iretiration if any //
+		// Clearing the input/output stream once more to prepare for the next iteration if any //
 		discardLine();
 
 		// Adding the struct we have just created to the struct_list //
 	 
 		/* Cool little optimization trick i learnt is that if you dont use std::move(user) it will copy
-		   the struct to add it to the struct_list therefore leading to a peformance issue, thanks to std::move
-		   we can add the exact copy to struct_list we created without creating a new copy*/
+		   the struct to add it to the struct_list therefore leading to a performance issue in bigger projects,
+		   thanks to std::move we can transfer ownership of the exact copy to struct_list we created without creating a new copy*/
 		struct_list.push_back(std::move(user));
 	}
 }
@@ -111,20 +111,20 @@ double calculateGPA(const std::vector <coursesData>& struct_list) {
 // Main entry where all the logic is handled //
 int main()
 {
-	// Creating a integer that will track the amount of courses the user has enterd //
+	// Creating a integer that will track the amount of courses the user has entered //
 	int totalCourses;
 
 	// Prompting user to press enter to start //
-	std::cout << "CGPA Calculater. Press enter to start" << '\n';
+	std::cout << "CGPA Calculator. Press enter to start" << '\n';
 	std::cin.get();
 
 	// Sending our original copy of the total courses then setting it to the users input inside this function //
 	getCourseAmount(totalCourses);
 
-	// Creating a struct array //
+	// Creating a struct vector //
 	std::vector <coursesData> stuct_list;
 
-	// Using reserve here so that the array creates the exact copy of bytes it needs for all the courses //
+	// Using reserve here so that the vector allocates the required memory upfront //
 	stuct_list.reserve(totalCourses);
 
 	// Sending our struct list and total courses amount to this function to set all the values depending on the users input //
