@@ -147,3 +147,6 @@ int main()
 	return 0;
 }
 ```
+
+
+# Ide I used [Visual studio 2022](https://www.techspot.com/downloads/7493-visual-studio-2022.html)
