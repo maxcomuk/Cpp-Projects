@@ -19,3 +19,14 @@ Overall our goal is to get how many courses the user has took then get the grade
 #include <vector>
 #include <iomanip>
 ```
+
+## Step 2
+This function will reset the input/output stream by clearing the leftover whitespaces and reseting the errors if any from std::cin
+```
+void discardLine() {
+	if (std::cin.fail())
+		std::cin.clear();
+
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+```
