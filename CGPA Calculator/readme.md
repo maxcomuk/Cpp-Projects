@@ -42,7 +42,7 @@ struct coursesData {
 ```
 
 ## Step 4: Capturing Course Count
-- Grabbing the original integer named totalCourses using the & and then prompting the user with how much courses he has took, once the input is validated by the if statement we set the value to the totalCourses.
+- Grabbing the direct refrence to the integer named totalCourses using the & and then prompting the user with how much courses he has took, once the input is validated by the if statement we set the value to the totalCourses.
 ```
 void getCourseAmount(int& totalCourses) {
 	while (true) {
