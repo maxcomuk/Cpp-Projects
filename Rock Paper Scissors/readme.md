@@ -147,4 +147,4 @@ Copy the whole main.cpp file and then paste it into your ide then compile it
 - File download method -
 Download the file and then simply open it with your preferred ide to compile
 
-# Ide i used [Visual studio 2022](https://www.techspot.com/downloads/7493-visual-studio-2022.html)
+# Ide I used [Visual studio 2022](https://www.techspot.com/downloads/7493-visual-studio-2022.html)
