@@ -108,7 +108,7 @@ void getCourseData(std::vector <coursesData>& struct_list, int& totalCourses) {
 ```
 
 ## Step 7: GPA Calculation Logic
-- Looping through the vector and applying the formulat explained from above, once we are finished with the loop we return the calculated gpa.
+- Looping through the vector and applying the formula explained from above, once we are finished with the loop we return the calculated gpa.
 ```
 double calculateGPA(const std::vector <coursesData>& struct_list) {
 	double totalGradePoints = 0.0;
