@@ -65,12 +65,12 @@ public:
 	}
 
 	// Grabbing the difficultyLevel variable from private section then returning a copy //
-	int get_difficulty_level() { return difficultyLevel; };
+	int get_difficulty_level() const { return difficultyLevel; };
 
 	// Grabbing the cash variable from private section then returning a copy //
-	int get_cash_balance() { return currentCash; };
+	int get_cash_balance() const { return currentCash; };
 
-	int get_number_of_retries()
+	int get_number_of_retries() const
 	{
 		if (difficultyLevel == 1) { return 3; };
 		if (difficultyLevel == 2) { return 2; };
