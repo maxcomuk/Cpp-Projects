@@ -1,1 +1,1 @@
-# Casino-Number-Guessing-Game Documentation
+# Casino-Guessing-Game Documentation
