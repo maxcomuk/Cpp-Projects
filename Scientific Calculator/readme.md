@@ -284,3 +284,12 @@ int main()
 	return 0;
 }
 ```
+
+# Installation Process
+- Copy & Paste Method -
+Simply copy the whole of Main.cpp file and then paste it in your prefferd ide to compile
+
+- File Download Method -
+Download Main.cpp then open it with your prefferd ide to compile it
+
+# Ide I used [Visual studio 2022](https://www.techspot.com/downloads/7493-visual-studio-2022.html)
