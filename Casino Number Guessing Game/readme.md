@@ -9,7 +9,7 @@
 #include <string>
 ```
 
-## Step 2
+## Step 2: Managing Input Stream
 This function will be used to clear the input stream of any errors that might occur from the user typing, for example if we request a difficulty level we want the user to input a number but if he types a bunch of characters then that will cause errors to the input stream thanks to this function we can clear those errors and also remove any leftover whitespaces to use the next available line.
 ```
 void clearInputStream()
@@ -21,7 +21,7 @@ void clearInputStream()
 }
 ```
 
-## Step 3
+## Step 3: Defining Data Structures
 This struct will be used as a template for when we save data to the game history. (we use a vector to store these values into a list later on)
 ```
 struct gameResults
@@ -32,7 +32,7 @@ struct gameResults
 };
 ```
 
-## Step 4
+## Step 4: Creating the UserData Class (Handles data for all individual users)
 We first create a class that will contain all the methods required to play the minigame this will also be used to hold properties / data for the user.
 
 The reason we contain our data inside the private section is so that anyone reading this code or if we make updates later on we wont tamper with any of the values as they will be important for the users minigame and if changed incorrectly it can mess with the games state.
@@ -187,7 +187,7 @@ public:
 };
 ```
 
-## Step 5
+## Step 5: Menu Navigations / Options
 Once the user has finished his game this function will be used to display what options he can do next and return the choice, for example the user wishes to continue playing he would enter 1 and so on.
 ```
 int displayOptions()
@@ -211,7 +211,7 @@ int displayOptions()
 }
 ```
 
-## Step 6
+## Step 6: Program Main Entry Point (this is where the program starts)
 This is where we handle all the games logic and use all the functions and class methods
 
 Main purpose of this function is to start the game and then run a conditional while loop that we will exit only if the user doesnt have enough cash to keep playing or if he exits the program when giving the option to
