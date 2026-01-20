@@ -1,3 +1,3 @@
 # Scientific-Calculator Documentation
 
-## Goal of project:
+### Goal of project
