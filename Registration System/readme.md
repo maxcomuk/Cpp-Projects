@@ -15,3 +15,45 @@ Once you have both libraries and your compiler doesnt error when you try to buil
 #include <limits>
 #include "sqlite3.h"
 ```
+
+## Step 2: Clearing Input Stream
+Clearing the input stream of any leftover whitespaces and any console errors
+```
+void clearInputStream()
+{
+	if (std::cin.fail())
+		std::cin.clear();
+
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+```
+
+## Step 3: Prompting User With Registration Decision
+Locking the user in a infinite while loop until the user has finished selecting an option.
+
+We take a bool (named menu_navigation) to determain wether the user has just started the program or is logged in to his account. Then we prompt the user with the context-specific menu: if logged in, they can switch accounts or view details; otherwise, they are limited to initial login and registration. Depending on the users input we assign the decision then exit the loop.
+```
+void registrationType(int& decision, bool menu_navigation)
+{
+	while (true)
+	{
+		if (menu_navigation)
+		{
+			std::cout << "1 = Login Into Another Account || 2 = Register Another Account || 3 = Get Account Details\n";
+
+			if (std::cin >> decision && (decision == 1 || decision == 2 || decision == 3))
+				break;
+		}
+		else
+		{
+			std::cout << "\n1 = Login Account || 2 = Register An Account\n";
+
+			if (std::cin >> decision && (decision == 1 || decision == 2))
+				break;
+		}
+
+		std::cout << "\nInvalid Input\n";
+		clearInputStream();
+	}
+}
+```
