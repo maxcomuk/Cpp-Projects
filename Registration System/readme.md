@@ -59,15 +59,19 @@ void registrationType(int& decision, bool menu_navigation)
 ```
 
 ## Step 4: Creating UserData Class
-Firstly we create two string variables that will be used to track the current logged in user and the users input so we can validate with the database if the user is valid or registering the user to the database then we mark it as private so to keep it safe from any other functions out of scope modifying the values.
-
-We define two private member variables to encapsulate the user's credentials, ensuring they can only be modified or accessed through the class's internal logic. The class provides public methods to interface with the SQLite database for user authentication and registration, maintaining data integrity by preventing external scope modifications.
+Firstly, we create two private members that will be used to track the current logged in user or get the users input then we validate with the database if the user is valid to register an account to the database or log the user into his account then we mark it as private so to keep it safe from any other functions out of scope modifying the values.
 
 ##
 
-Creating a void function (named registerAccount) that will take the pointer to our database and will lock the user in a infinite while loop, this is usefull so we can keep asking the user to create an account until he finally creates a valid account that doesnt arleady exist on the database. Next we run a sql command that will check the database if the users input (username) arleady exists on the databse. If the user doesnt exist we attempt to save the new user however if it fails to save midway we print out to the console the error and ask the user to register again (eg ireterating while loop again).
+Secondly, We create a void function (named registerAccount) that will take the pointer to our database and will lock the user in a infinite while loop, this is usefull so we can keep asking the user to create an account until he finally creates a valid account that doesnt arleady exist on the database. Next we run a sql command that will check the database if the users input (username) arleady exists on the databse. If the user doesnt exist we attempt to save the new user however if it fails to save midway we print out to the console the error and ask the user to register again (eg ireterating while loop again).
+
+Secondly, we define a void function named registerAccount which accepts a pointer to our database. This function utilizes an infinite loop to repeatedly prompt the user for credentials until a valid account is successfully created.
+
+Within the loop, we execute a SQL query to check if the provided username already exists in the database. If the username is available, the system attempts to save the new user however if a failure happens mid-way then the function catches the exception, displays the error message to the console, and restarts the registration prompt.
 
 ##
+
+Lastly we define another void function (named accountLogin) that will print out to the console the users current account details (username & password).
 ```
 class UserData
 {
@@ -155,4 +159,60 @@ public:
 		std::cin.get();
 	}
 };
+```
+
+
+## Step 5: Main Entry Point (main logic)
+Defining a sqlite3 pointer that will attempt to open the database with the chosen name if it fails to find it then it will auto create one however if it fails to open or create a file we will then warn the user that the database failed and will early exit the program.
+
+Once we have opened the database we then use a SQL command that will get all the users within the database and if it doesnt exist it will auto create a template for future saves. The template we will use for this program will be (ID --> Username, Password). Note that in the SQL command we instruct the database to automatically create the ID for new users and it will go from this order (1, 2, 3 . . .).
+
+We welcome the user with a optional prompt then call the registrationType function and give it the direct refrence of the decision which we will use to later check if the user has chosen to loggin to his account, register an account or get his account details if he is logged in.
+
+It is important we close the database connection right before exiting the program so that we free memory and avoid any corruptions (it also allows other programs to use the database file as it wont be locked to this program). Note if we dont do this and try to reopen the program there could be issues when attempting to establish a connection with the database again.
+
+```
+int main()
+{
+	sqlite3* DataBase;
+	int response = sqlite3_open("Registration-Database", &DataBase);
+	if (response != SQLITE_OK)
+	{
+		std::cout << "Database Failure!\n";
+		return 1;
+	}
+
+	const char* setupSQL = "CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY AUTOINCREMENT, USERNAME TEXT NOT NULL, PASSWORD TEXT NOT NULL);";
+	char* sqlError;
+	sqlite3_exec(DataBase, setupSQL, NULL, 0, &sqlError);
+
+	UserData user;
+	int decision;
+
+	std::cout << "**** Welcome to the registration system ****\nPress enter to begin . . .\n";
+	std::cin.get();
+
+	registrationType(decision, false);
+	clearInputStream(); // Clearing Input Stream
+
+	while (true)
+	{
+		if (decision == 1)
+			user.accountLogin(DataBase);
+		else if (decision == 2)
+			user.registerAccount(DataBase);
+		else
+			user.getAccountDetails();
+
+		system("cls");
+
+		std::cout << "\t\t\t\t**** Menu Navigation Settings ****\n";
+		registrationType(decision, true);
+		clearInputStream();
+	}
+
+	sqlite3_close(DataBase);
+
+	return 0;
+}
 ```
