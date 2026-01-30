@@ -797,3 +797,16 @@ int main()
 	return 0;
 }
 ```
+
+# Installation Process
+First you will need to include sqlite3.c and sqlite3.h to your project (prefferd ide or what you use to compile). I have put both sqlite3 versions I have used for this project however you can also download it from the original source here --> [sqlite3 download](https://www.sqlite.org/2026/sqlite-amalgamation-3510200.zip)
+
+- Copy & Paste Method -
+1. Create two files, one will be a cpp file and the other will be a header file (Main.cpp and Main.h).
+2. Copy the content of the Main.cpp and paste it into your cpp file
+3. Copy the content of the Main.h and paste it into your header (.h) file
+4. compile and run the program
+
+- File Download Method -
+
+# Ide I used [Visual studio 2022](https://www.techspot.com/downloads/7493-visual-studio-2022.html)
