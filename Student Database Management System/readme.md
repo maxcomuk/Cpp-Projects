@@ -691,4 +691,109 @@ struct schoolHandler
 };
 ```
 
-## Step 8
+## Step 8: Database Management Control Loop
+"This function controls the schoolHandler struct. It implements an infinite while loop that keeps the interface active until the user decides to log out or exit the program. This loop ensures the user stays within the management system until they choose to leave.
+```
+void setup_database_management(schoolHandler& schoolSystem, AuthManager& user, sqlite3*& db)
+{
+	int decision;
+
+	while (true)
+	{
+		showDatabaseMenu();
+		if (!(std::cin >> decision && (decision > 0 && decision < 11)))
+		{
+			std::cout << "Invalid Input: Please try again\n";
+			ClearInputBuffer();
+			continue;
+		}
+
+		ClearInputBuffer();
+		system("cls");
+
+		if (decision == 1)
+		{
+			schoolSystem.searchUser(db);
+		}
+		else if (decision == 2)
+		{
+			schoolSystem.addStudent(db);
+		}
+		else if (decision == 3)
+		{
+			schoolSystem.removeStudent(db);
+		}
+		else if (decision == 4)
+		{
+			schoolSystem.displayStudents(db);
+		}
+		else if (decision == 5)
+		{
+			schoolSystem.displayCourses(db);
+		}
+		else if (decision == 6)
+		{
+			schoolSystem.addCourse(db);
+		}
+		else if (decision == 7)
+		{
+			schoolSystem.removeCourse(db);
+		}
+		else if (decision == 8)
+		{
+			schoolSystem.searchCourse(db);
+		}
+		else if (decision == 9)
+		{
+			user.LogOut();
+			break;
+		}
+		else if (decision == 10)
+		{
+			std::cout << "Closing Program . . .\n";
+			sqlite3_close(db);
+			exit(0);
+		}
+
+		std::cout << "\nPress Enter To Continue";
+		std::cin.get();
+	}
+}
+```
+
+## Step 9: Program Main Entry
+Lastly this is where the program will start running the code and this function will be used to control all the logic.
+
+We first instantiate both user class and schoolsystem class then setup the database. After this we enter a infinite while loop to keep the program alive and call either the user registration function or the database management function.
+
+Note we dont actully need to close the database or return 0 as we exit the program manually inside the setup_user_registration or setup_database_management functions however if we were to expand this project or clean it up then it would be vital we handle the exiting logic inside here.
+
+## Step 9: Program Main Entry
+
+This is the entry point where the program starts and handles all the logic.
+
+First, we instantiate the AuthManager and schoolHandler classes and initialize the database connection. We then enter an infinite while loop to keep the program running, alternating between the user registration/login menu and the database management system.
+
+Note: While the code includes sqlite3_close and return 0 at the end, this is unnecessary because the program exits manually from within the sub-functions. If the project is expanded or cleaned up later, this exit logic should be centralized here and not within the sub-functions for better structure (ultimatly this is just prefrence and not required).
+```
+int main()
+{
+	AuthManager user;
+	schoolHandler schoolSystem;
+
+	std::cout << "**** Student Database Manager ****\n";
+
+	sqlite3* DataBase = nullptr;
+	setupDatabase(DataBase);
+
+	while (true)
+	{
+		setup_user_registration(user, DataBase);
+		setup_database_management(schoolSystem, user, DataBase);
+		system("cls");
+	}
+
+	sqlite3_close(DataBase);
+	return 0;
+}
+```
