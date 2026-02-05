@@ -1,5 +1,6 @@
 # Student-Database-Management-System Documentation
 
+![License](https://github.com/maxcomuk/Cpp-Projects/blob/main/LICENSE)
 
 ## Things to know
 First I will explain the header file (named Main.h) then we will go into the main cpp file (named Main.cpp).
