@@ -1,12 +1,9 @@
 # Inventory-Management-System Documentation
 
-![License](https://github.com/maxcomuk/Cpp-Projects/blob/main/LICENSE) <br></br>
-[Direct Exe Download](https://limewire.com/d/9aydG#i1zSbooxiD)
-
 ## Project Overview
-1. Inventory Management System allows the (user / admin) control the Inventory of a buisness or warehouse etc. Our goal is to use oop and create a class with the required methods to control the inventory and get data aswell as a seperate class that will handle the registration for the user to login into the inventory management system. As we are focusing primarly on the inventory class we will only include simple methods for the registration such as registering an account or logging into an existing account.
+1. Inventory Management System allows the (user / admin) control the Inventory of a business or warehouse etc. Our goal is to use OOP and create a class with the required methods to control the inventory and get data as well as a separate class that will handle the registration for the user to login into the inventory management system. As we are focusing primarily on the inventory class we will only include simple methods for the registration such as registering an account or logging into an existing account.
 
-2. We will be using sqlite3 to create the database file meaning for the project to work you MUST add sqlite3.c and sqlite3.h to the 'db' folder for it to work and provide the functionalities required for the database. You can do this by downloading the sqlite3.c and .h from this github or from the offical SQL website and then right-click on the files and select the option 'include in project' once this is done on each file they will be added to the project and allow the database to use the sqlite3 methods.
+2. We will be using sqlite3 to create the database file meaning for the project to work you MUST add `sqlite3.c` and `sqlite3.h` to the `db` folder for it to work and provide the functionalities required for the database. You can do this by downloading the sqlite3.c and .h from the [official SQLite website](https://www.sqlite.org/download.html) and then right-click on the files and select the option **'Include In Project'** — once this is done on each file they will be added to the project and allow the database to use the sqlite3 methods.
 
 ### Key Features
 - Inventory Registration
@@ -14,12 +11,14 @@
 - Logout / Exit program compatibility
 
 ### Things to know
-As this is my first time building an inventory management system and using multiple files, I will be including extra code such as declaring the constructor or deconstructor but it may not be used so you can delete these parts as it was intended for users that may build on this project. Its also recommended to rename the files to your likings such as 'db' can be renamed to database.
+As this is my first time building an inventory management system and using multiple files, I will be including extra code such as declaring the constructor or destructor but it may not be used so you can delete these parts as it was intended for users that may build on this project. It's also recommended to rename the files to your liking such as `db` can be renamed to `database`.
+
+---
 
 ## Step 1: Database.h
-Database class will contain all the methods that will interact with the database and peform actions such as changing or getting data. The 'InventoryItem' struct will be used as a template when we need to modify an item by using this struct we can pass the desired inventory item data and find it within the database and then change it to the new data, Note we use this struct to pass data through a function overall the benefits of doing this is that we prevent 7+ arguments to function paremeter and just include 1 argument which is the struct itself.
+The `Database` class will contain all the methods that will interact with the database and perform actions such as changing or getting data. The `InventoryItem` struct will be used as a template when we need to modify an item — by using this struct we can pass the desired inventory item data and find it within the database and then change it to the new data. We use this struct to pass data through a function; the benefit of doing this is that we prevent 7+ arguments to a function parameter and just include 1 argument which is the struct itself.
 
-```
+```cpp
 #pragma once
 
 #include <string>
@@ -60,6 +59,8 @@ public:
 	std::vector<InventoryItem> GetAllItems();
 };
 ```
+
+---
 
 ## Step 2: Database.cpp
 
@@ -214,337 +215,217 @@ After all rows are processed:
 - The method returns a `std::vector<InventoryItem>` containing every item in the inventory database.
 
 This method is essential for displaying or processing the entire inventory list in the application.
+
+---
+
+## Step 3: Registration.h & Registration.cpp
+
+The `AuthManager` class handles all user-facing registration and login functionality. It maintains a simple login state and exposes a setup method that drives the authentication flow before the user can access the inventory system.
+
+```cpp
+#pragma once
+#include "db/Database.h"
+
+class AuthManager
+{
+private:
+    bool loggedIn;
+    std::string activeUser;
+public:
+    AuthManager();
+    ~AuthManager();
+
+    bool get_login_status() const;
+    const std::string& get_active_user() const;
+    bool setup_user_registration(Database& db);
+};
 ```
+
+### 1. Constructor & Destructor
+
+The constructor initializes `loggedIn` to `false` and `activeUser` to an empty string, reflecting that no user is authenticated at startup. The destructor performs no special cleanup as the class holds no heap-allocated resources.
+
+---
+
+### 2. get_login_status
+
+Returns the current value of `loggedIn`. Used in `Main.cpp` to decide whether to prompt the registration/login menu before entering the inventory loop.
+
+---
+
+### 3. get_active_user
+
+Returns the username of the currently logged-in user. This can be used by other parts of the system to display or log the active session.
+
+---
+
+### 4. setup_user_registration
+
+This method drives the registration/login menu loop. It presents the user with options to:
+
+- **Register** a new account — calls `db.InsertUser()`
+- **Login** to an existing account — calls `db.ValidateUser()`
+- **Exit** the program
+
+On successful login, `loggedIn` is set to `true` and `activeUser` is stored. Returns `false` if the user chooses to exit, which signals `Main.cpp` to break the main loop.
+
+---
+
+## Step 4: InvManager.h & InvManager.cpp
+
+The `InventoryManager` class handles all inventory operations exposed to the user. It uses the `Database` class for persistence and the `invUtils` namespace from `Utilities` for validated user input.
+
+```cpp
+#pragma once
+#include "db/Database.h"
+#include "registration/Registration.h"
+
+class InventoryManager
+{
+public:
+    InventoryManager();
+    ~InventoryManager();
+
+    bool setup_inventory_manager(Database& db, AuthManager& auth);
+};
+```
+
+### 1. setup_inventory_manager
+
+This is the main inventory loop. It displays the inventory menu and routes the user to the appropriate action based on their input:
+
+- **Add Item** — collects item details via `invUtils` helpers and calls `db.InsertItem()`
+- **Remove Item** — prompts for a product name and calls `db.RemoveItem()`
+- **Modify Item** — validates the existing item with `db.ValidateItem()`, collects new values, then calls `db.ModifyItem()`
+- **View Item** — prompts for category and product name, then calls `db.GetItem()`
+- **View All Items** — calls `db.GetAllItems()` and displays the full inventory list
+- **Logout** — resets the auth state and returns to the registration menu
+- **Exit** — returns `false` to signal `Main.cpp` to terminate the program
+
+---
+
+## Step 5: Utilities.h & Utilities.cpp
+
+Utilities is split into two namespaces to keep database setup and input handling separate.
+
+```cpp
+#pragma once
+#include "db/Database.h"
+
+namespace dbUtils
+{
+    void ClearInputBuffer();
+    bool SetupTables(Database& db);
+    void registrationMenu();
+    void inventoryMenu();
+}
+
+namespace invUtils
+{
+    bool get_product_category(std::string& itemCategory);
+    void get_product_name(std::string& itemName);
+    bool get_product_amount(int& itemAmount);
+    bool get_product_price(double& itemPrice);
+    void get_product_size(std::string& itemSize);
+    void get_product_description(std::string& itemDesc);
+}
+```
+
+### dbUtils
+
+| Function | Description |
+|---|---|
+| `ClearInputBuffer()` | Flushes `std::cin` to prevent leftover input causing issues on the next read |
+| `SetupTables(db)` | Creates the `USERS` and `INVENTORY` tables on first run via `db.CreateTable()` |
+| `registrationMenu()` | Prints the registration/login options menu to the console |
+| `inventoryMenu()` | Prints the inventory options menu to the console |
+
+### invUtils
+
+Each function collects and validates a single field of an `InventoryItem` from the user. Boolean-returning functions return `false` if the user enters a sentinel value to cancel the operation.
+
+| Function | Description |
+|---|---|
+| `get_product_category()` | Prompts and validates the item category |
+| `get_product_name()` | Prompts for the product name |
+| `get_product_amount()` | Prompts and validates the stock amount (integer) |
+| `get_product_price()` | Prompts and validates the price (double) |
+| `get_product_size()` | Prompts for the item size |
+| `get_product_description()` | Prompts for the item description |
+
+---
+
+## Step 6: Main.cpp
+
+`Main.cpp` is the entry point. It initialises the three core objects, opens the database, sets up the tables, then enters the main loop.
+
+```cpp
 #include <iostream>
-#include "Database.h"
+#include <limits>
+#include "Utilities.h"
+#include "db/Database.h"
+#include "registration/Registration.h"
+#include "inventory/InvManager.h"
 
-Database::Database() : db(nullptr) {}
-
-Database::~Database()
+int main()
 {
-	if (db)
-	{
-		sqlite3_close(db);
-		db = nullptr;
-	}
-}
+    AuthManager auth;
+    Database db;
+    InventoryManager inv;
 
-bool Database::OpenDatabase(const std::string& fileName)
-{
-	int response = sqlite3_open(fileName.c_str(), &db);
-	if (response != SQLITE_OK)
-	{
-		std::cerr << "\nFailed to open database: " << sqlite3_errmsg(db) << '\n';
+    if (!(db.OpenDatabase("Inventory Management System.db")))
+        return 1;
 
-		if (db)
-		{
-			sqlite3_close(db);
-			db = nullptr;
-		}
+    if (!(dbUtils::SetupTables(db)))
+        return 1;
 
-		return false;
-	}
+    std::cout << "**** Inventory System ****\n";
 
-	return true;
-}
+    while (true)
+    {
+        if (!(auth.get_login_status()))
+            if (!(auth.setup_user_registration(db)))
+                break;
 
-bool Database::CreateTable(const std::string& tableName, const std::string& columns)
-{
-	std::string SQL = "CREATE TABLE IF NOT EXISTS " + tableName + " (" + columns + ");";
+        if (!(inv.setup_inventory_manager(db, auth)))
+            break;
+    }
 
-	int response = sqlite3_exec(db, SQL.c_str(), nullptr, nullptr, nullptr);
-	if (response != SQLITE_OK)
-		std::cerr << "\nFailed to create database table " << tableName << ": " << sqlite3_errmsg(db) << '\n';
-	else
-		return true;
-
-	return false;
-}
-
-bool Database::ValidateUser(const std::string& username, const std::string& password)
-{
-	const char* SQL = "SELECT count(*) FROM USERS WHERE USERNAME = ? AND PASSWORD = ?";
-	sqlite3_stmt* validate_stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &validate_stmt, nullptr) != SQLITE_OK)
-	{
-		std::cerr << "\nError Preparing sqlite3_prepare_v2: " << sqlite3_errmsg(db) << '\n';
-		return false;
-	}
-
-	sqlite3_bind_text(validate_stmt, 1, username.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(validate_stmt, 2, password.c_str(), -1, SQLITE_STATIC);
-
-	bool userValidated = false;
-	if (sqlite3_step(validate_stmt) == SQLITE_ROW)
-	{
-		if (sqlite3_column_int(validate_stmt, 0) > 0)
-		{
-			userValidated = true;
-		}
-	}
-
-	sqlite3_finalize(validate_stmt);
-	return userValidated;
-}
-
-bool Database::InsertUser(const std::string& username, const std::string& password)
-{
-	const char* SQL = "INSERT INTO USERS (USERNAME, PASSWORD) VALUES (?, ?);";
-	sqlite3_stmt* insert_stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &insert_stmt, nullptr) != SQLITE_OK)
-	{
-		std::cerr << "\nError Preparing sqlite3_prepare_v2: " << sqlite3_errmsg(db) << '\n';
-		return false;
-	}
-
-	sqlite3_bind_text(insert_stmt, 1, username.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(insert_stmt, 2, password.c_str(), -1, SQLITE_STATIC);
-
-	int result = sqlite3_step(insert_stmt);
-	sqlite3_finalize(insert_stmt);
-
-	if (result == SQLITE_DONE)
-		return true;
-
-	if (result == SQLITE_CONSTRAINT)
-		std::cerr << "\nFailed to register user: Account arleady exists!\n";
-	else
-		std::cerr << "\nFailed to register user: " << sqlite3_errmsg(db) << '\n';
-
-	return false;
-}
-
-bool Database::RemoveUser(const std::string& username, const std::string& password)
-{
-	const char* SQL = "DELETE FROM USERS WHERE USERNAME = ? AND PASSWORD = ?;";
-	sqlite3_stmt* delete_stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &delete_stmt, nullptr) != SQLITE_OK)
-	{
-		std::cerr << "\nError Preparing sqlite3_prepare_v2: " << sqlite3_errmsg(db) << '\n';
-		return false;
-	}
-
-	sqlite3_bind_text(delete_stmt, 1, username.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(delete_stmt, 2, password.c_str(), -1, SQLITE_STATIC);
-
-	int result = sqlite3_step(delete_stmt);
-	sqlite3_finalize(delete_stmt);
-
-	if (result == SQLITE_DONE)
-	{
-		if (sqlite3_changes(db) > 0)
-			return true;
-
-		std::cerr << "\nUser Not Found: Please try again!\n";
-		return false;
-	}
-
-	std::cerr << "\nDatabase Error During Removing User: " << sqlite3_errmsg(db) << '\n';
-	return false;
-}
-
-bool Database::ValidateItem(InventoryItem& object)
-{
-	const char* SQL = "SELECT CATEGORY, PRODUCT_NAME, AMOUNT, PRICE, SIZE, DESCRIPTION, CREATED_AT FROM INVENTORY WHERE PRODUCT_NAME = ?;";
-	sqlite3_stmt* validate_stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &validate_stmt, nullptr) != SQLITE_OK)
-	{
-		std::cerr << "\nError Preparing sqlite3_prepare_v2: " << sqlite3_errmsg(db) << '\n';
-		return false;
-	}
-
-	sqlite3_bind_text(validate_stmt, 1, object.productName.c_str(), -1, SQLITE_STATIC);
-
-	bool productValidated = false;
-	if (sqlite3_step(validate_stmt) == SQLITE_ROW)
-	{
-		const char* cat = (const char*)sqlite3_column_text(validate_stmt, 0);
-		const char* name = (const char*)sqlite3_column_text(validate_stmt, 1);
-		const char* size = (const char*)sqlite3_column_text(validate_stmt, 4);
-		const char* desc = (const char*)sqlite3_column_text(validate_stmt, 5);
-		const char* date = (const char*)sqlite3_column_text(validate_stmt, 6);
-
-		object.category = cat ? cat : "Unknown";
-		object.productName = name ? name : "Unknown";
-		object.amount = sqlite3_column_int(validate_stmt, 2);
-		object.price = sqlite3_column_double(validate_stmt, 3);
-		object.size = size ? size : "0kg";
-		object.description = desc ? desc : "No Description";
-		object.createdAt = date ? date : "N/A";
-
-		productValidated = true;
-	}
-
-	sqlite3_finalize(validate_stmt);
-	return productValidated;
-}
-
-bool Database::ModifyItem(const std::string& originalProductName, const InventoryItem& object)
-{
-	const char* SQL = "UPDATE INVENTORY SET CATEGORY = ?, PRODUCT_NAME = ?, AMOUNT = ?, PRICE = ?, SIZE = ?, DESCRIPTION = ?, CREATED_AT = CURRENT_TIMESTAMP WHERE PRODUCT_NAME = ?;";
-	sqlite3_stmt* update_stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &update_stmt, nullptr) != SQLITE_OK)
-	{
-		std::cerr << "\nError Preparing sqlite3_prepare_v2: " << sqlite3_errmsg(db) << '\n';
-		return false;
-	}
-
-	sqlite3_bind_text(update_stmt, 1, object.category.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(update_stmt, 2, object.productName.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_int(update_stmt, 3, object.amount);
-	sqlite3_bind_double(update_stmt, 4, object.price);
-	sqlite3_bind_text(update_stmt, 5, object.size.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(update_stmt, 6, object.description.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(update_stmt, 7, originalProductName.c_str(), -1, SQLITE_STATIC);
-
-	int result = sqlite3_step(update_stmt);
-	sqlite3_finalize(update_stmt);
-
-	if (result == SQLITE_DONE)
-	{
-		if (sqlite3_changes(db) > 0)
-			return true;
-
-		std::cerr << "\nUpdate Failed: Product " << originalProductName << " Not Found!\n";
-		return false;
-	}
-
-	std::cerr << "\nUpdate Failed: Database Error -> " << sqlite3_errmsg(db) << '\n';
-	return false;
-}
-
-bool Database::InsertItem(const InventoryItem& object)
-{
-	const char* SQL = "INSERT INTO INVENTORY (CATEGORY, PRODUCT_NAME, AMOUNT, PRICE, SIZE, DESCRIPTION) VALUES (?, ?, ?, ?, ?, ?);";
-	sqlite3_stmt* insert_stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &insert_stmt, nullptr) != SQLITE_OK)
-	{
-		std::cerr << "\nError Preparing sqlite3_preprare_v2: " << sqlite3_errmsg(db) << '\n';
-		return false;
-	}
-
-	sqlite3_bind_text(insert_stmt, 1, object.category.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(insert_stmt, 2, object.productName.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_int(insert_stmt, 3, object.amount);
-	sqlite3_bind_double(insert_stmt, 4, object.price);
-	sqlite3_bind_text(insert_stmt, 5, object.size.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(insert_stmt, 6, object.description.c_str(), -1, SQLITE_STATIC);
-
-	int result = sqlite3_step(insert_stmt);
-	sqlite3_finalize(insert_stmt);
-
-	if (result == SQLITE_DONE)
-		return true;
-
-	if (result == SQLITE_CONSTRAINT)
-		std::cerr << "\nFailed to add product to inventory: Product arleady exists!\n";
-	else
-		std::cerr << "\nFailed to add product to inventory: " << sqlite3_errmsg(db) << '\n';
-
-	return false;
-}
-
-bool Database::RemoveItem(const std::string& productName)
-{
-	const char* SQL = "DELETE FROM INVENTORY WHERE PRODUCT_NAME = ?;";
-	sqlite3_stmt* delete_stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &delete_stmt, nullptr) != SQLITE_OK)
-	{
-		std::cerr << "\nError Preparing sqlite3_prepare_v2: " << sqlite3_errmsg(db) << '\n';
-		return false;
-	}
-
-	sqlite3_bind_text(delete_stmt, 1, productName.c_str(), -1, SQLITE_STATIC);
-
-	int result = sqlite3_step(delete_stmt);
-	sqlite3_finalize(delete_stmt);
-
-	if (result == SQLITE_DONE)
-	{
-		if (sqlite3_changes(db) > 0)
-			return true;
-
-		std::cerr << "\nFailed to remove product from the inventory. Please try again!\n";
-		return false;
-	}
-
-	std::cerr << "\nDatabase Error During Removing Product: " << sqlite3_errmsg(db) << '\n';
-	return false;
-}
-
-bool Database::GetItem(InventoryItem& object)
-{
-	const char* SQL = "SELECT CATEGORY, PRODUCT_NAME, AMOUNT, PRICE, SIZE, DESCRIPTION, CREATED_AT FROM INVENTORY WHERE CATEGORY = ? AND PRODUCT_NAME = ?;";
-	sqlite3_stmt* stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &stmt, nullptr) != SQLITE_OK)
-	{
-		std::cerr << "\nError Preparing sqlite3_prepare_v2: " << sqlite3_errmsg(db) << '\n';
-		return false;
-	}
-
-	sqlite3_bind_text(stmt, 1, object.category.c_str(), -1, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, object.productName.c_str(), -1, SQLITE_STATIC);
-
-	int result = sqlite3_step(stmt);
-	bool exists = false;
-
-	if (result == SQLITE_ROW)
-	{
-		const char* size = (const char*)sqlite3_column_text(stmt, 4);
-		const char* desc = (const char*)sqlite3_column_text(stmt, 5);
-		const char* date = (const char*)sqlite3_column_text(stmt, 6);
-
-		object.amount = sqlite3_column_int(stmt, 2);
-		object.price = sqlite3_column_double(stmt, 3);
-		object.size = size ? size : "0kg";
-		object.description = desc ? desc : "No Description";
-		object.createdAt = date ? date : "N/A";
-
-		exists = true;
-	}
-	else
-	{
-		std::cout << "\nNo item found with name: " << object.productName << '\n';
-	}
-
-	sqlite3_finalize(stmt);
-	return exists;
-}
-
-std::vector<InventoryItem> Database::GetAllItems()
-{
-	std::vector<InventoryItem> storedItems;
-
-	const char* SQL = "SELECT CATEGORY, PRODUCT_NAME, AMOUNT, PRICE, SIZE, DESCRIPTION, CREATED_AT FROM INVENTORY;";
-	sqlite3_stmt* stmt;
-	if (sqlite3_prepare_v2(db, SQL, -1, &stmt, nullptr) == SQLITE_OK)
-	{
-		while (sqlite3_step(stmt) == SQLITE_ROW)
-		{
-			InventoryItem item;
-
-			const char* cat = (const char*)sqlite3_column_text(stmt, 0);
-			const char* name = (const char*)sqlite3_column_text(stmt, 1);
-			const char* size = (const char*)sqlite3_column_text(stmt, 4);
-			const char* desc = (const char*)sqlite3_column_text(stmt, 5);
-			const char* date = (const char*)sqlite3_column_text(stmt, 6);
-
-			item.category = cat ? cat : "Unknown";
-			item.productName = name ? name : "Unknown";
-			item.amount = sqlite3_column_int(stmt, 2);
-			item.price = sqlite3_column_double(stmt, 3);
-			item.size = size ? size : "0kg";
-			item.description = desc ? desc : "No Description";
-			item.createdAt = date ? date : "N/A";
-
-			storedItems.push_back(item);
-		}
-	}
-	else {
-		std::cerr << "\nFailed to fetch items: " << sqlite3_errmsg(db) << '\n';
-	}
-
-	sqlite3_finalize(stmt);
-	return storedItems;
+    return 0;
 }
 ```
+
+The loop works as follows:
+
+- If the user is **not logged in**, `setup_user_registration()` is called. Returning `false` means the user chose to exit — the loop breaks.
+- If the user **is logged in**, `setup_inventory_manager()` is called. Returning `false` means the user chose to exit — the loop breaks.
+- Logging out from the inventory menu resets the login state without breaking the loop, returning the user to the registration screen.
+
+---
+
+## Installation Guide
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/Alexandru101/Cpp-Projects.git
+cd "Cpp-Projects/Inventory Management System"
+```
+
+**2. Get SQLite3 source files**
+
+Download `sqlite3.c` and `sqlite3.h` from [sqlite.org/download](https://www.sqlite.org/download.html) (look for the amalgamation zip) and place both files inside the `db/` folder.
+
+**3. Include SQLite3 in your project** *(Visual Studio)*
+
+Right-click `sqlite3.c` and `sqlite3.h` in the Solution Explorer → **Include In Project** on each file.
+
+**4. Build and run**
+
+- **Visual Studio:** Press `Ctrl+F5`
+- **g++ (command line):**
+```bash
+g++ -std=c++17 Main.cpp Utilities.cpp db/Database.cpp db/sqlite3.c registration/Registration.cpp inventory/InvManager.cpp -o InventorySystem
+./InventorySystem
+```
+
+The database file `Inventory Management System.db` will be created automatically on first run.
